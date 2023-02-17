@@ -14,7 +14,7 @@ shared-config: &shared-config
     rebase-merge: false
   delete-branch-on-merge: true
 
-shared-labels: &shared-labels
+labels:
   "good first issue":
     color: "00ff00"
   "Priority: Critical":
@@ -65,4 +65,4 @@ shared-labels: &shared-labels
     color: "fbca04"
 
 repos:
-  rgildein/bootstack-github-actions
+  rgildein/bootstack-github-actions: *shared-config

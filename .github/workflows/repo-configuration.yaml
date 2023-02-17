@@ -1,9 +1,12 @@
 name: BootStack GitHub repos configuration
 
 on:
-  push:
-    branches: [ main ]
-
+  workflow_dispatch:
+    inputs:
+      github-token:
+        description: "Your personal GitHub Token to trigger configuration"
+        type: string
+        required: true
 jobs:
   configure-all-repos:
     name: Sync repository settings
@@ -17,5 +20,6 @@ jobs:
           path: ./repos/settings.yaml
       - uses: roobre/reposettings@v1
         with:
-          github_token: ${{ secrets.ACTUAL_TOKEN }}
-          config: "${{ steps.load_config.outputs.content }}"
+          github_token: ${{ inputs.github-token }}
+          config: |
+            ${{ steps.load_config.outputs.content }}
