@@ -1,0 +1,21 @@
+name: BootStack GitHub repos configuration
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  configure-all-repos:
+    name: Sync repository settings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Load config file for repo configuration
+        id: load_config
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./repos/settings.yaml
+      - uses: roobre/reposettings@v1
+        with:
+          github_token: ${{ secrets.ACTUAL_TOKEN }}
+          config: "${{ steps.load_config.outputs.content }}"
