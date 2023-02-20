@@ -9,9 +9,10 @@ on:
     branches: [ master, main ]
 
 jobs:
-  lint-unit:
+  charm-lint-unit:
     uses: ./.github/workflows/lint_unit.yaml
     secrets: inherit
     with:
       python-version: "3.10"
       tox-version: "<4"
+      working-directory: ./tests/test_charm_repo
