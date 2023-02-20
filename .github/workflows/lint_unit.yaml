@@ -17,7 +17,7 @@ on:
         required: false
         description: "To change working directory"
         type: string
-        default: "${ GITHUB_WORKSPACE }"
+        default: "."
         
 jobs:
   lint-unit:
