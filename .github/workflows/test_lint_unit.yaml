@@ -1,0 +1,16 @@
+name: Lint checkers and Unit tests
+
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches: [ master, main ]
+  push:
+    branches: [ master, main ]
+
+jobs:
+  lint-unit:
+    uses: ./.github/workflows/reusable/lint_unit.yaml@main
+    secrets: inherit
+    with:
+      charm-path: ${{ inputs.charm-path }}
