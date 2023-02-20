@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint-unit:
-    uses: ./.github/workflows/reusable/lint_unit.yaml@main
+    uses: ./.github/workflows/reusable/lint_unit.yaml
     secrets: inherit
     with:
       charm-path: ${{ inputs.charm-path }}
