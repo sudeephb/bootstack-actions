@@ -10,7 +10,7 @@ from ops.main import main
 from ops.model import ActiveStatus
 
 
-class TestCharmCharm(CharmBase):
+class TestCharm(CharmBase):
     """Charm the service."""
 
     def __init__(self, *args):
@@ -20,4 +20,4 @@ class TestCharmCharm(CharmBase):
 
 
 if __name__ == "__main__":  # pragma: nocover
-    main(TestCharmCharm)
+    main(TestCharm)

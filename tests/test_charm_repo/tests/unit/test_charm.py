@@ -8,12 +8,12 @@ import unittest
 from ops.model import ActiveStatus
 from ops.testing import Harness
 
-from charm import TestCharmCharm
+from charm import TestCharm
 
 
-class TestCharm(unittest.TestCase):
+class TestCharmCase(unittest.TestCase):
     def setUp(self):
-        self.harness = Harness(TestCharmCharm)
+        self.harness = Harness(TestCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
