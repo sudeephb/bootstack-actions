@@ -18,7 +18,7 @@ APP_NAME = METADATA["name"]
 
 
 @pytest.mark.abort_on_fail
-async def test_build_and_deploy(ops_test: OpsTest) -> None:
+async def test_build_and_deploy(ops_test: OpsTest, series: str) -> None:
     """Build the charm-under-test and deploy it together with related charms.
 
     Assert on the unit status before any relations/configurations take place.
@@ -31,7 +31,7 @@ async def test_build_and_deploy(ops_test: OpsTest) -> None:
 
     # Deploy the charm and wait for active/idle status
     await asyncio.gather(
-        ops_test.model.deploy(charm, application_name=APP_NAME),
+        ops_test.model.deploy(charm, application_name=APP_NAME, series=series),
         ops_test.model.wait_for_idle(
             apps=[APP_NAME], status="active", raise_on_blocked=True, timeout=1000
         ),
