@@ -1,0 +1,45 @@
+name: Release charm
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        description: |
+          Name of artifact to download before building. This artifact can be used to
+          store resources or any other files needed for testing. The file needs to be
+          packed as tar.gz file.
+        default: ''
+        required: false
+        type: string
+      channel:
+        description: |
+          The channel to which charm should be released. Edge channel is default.
+        default: edge
+        required: false
+        type: string
+    secrets:
+      CHARMHUB_TOKEN:
+        required: true
+
+jobs:
+  release-to-charmhub:
+    name: Release to CharmHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download Artifact
+        if: ${{ inputs.artifact != '' }}
+        id: download_artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ inputs.artifact }}"
+      - name: Unpack Artifact
+        if: ${{ inputs.artifact != '' }}
+        run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
+      - name: Upload charm to CharmHub
+        uses: canonical/charming-actions/upload-charm@2.1.1
+        with:
+          credentials: "${{ secrets.CHARMHUB_TOKEN }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          channel: "${{ inputs.channel }}"
