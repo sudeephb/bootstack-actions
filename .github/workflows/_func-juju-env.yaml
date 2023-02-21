@@ -23,12 +23,11 @@ on:
         description: "Flag if snap is tested."
         type: boolean
         default: false
-      posargs:
+      series:
         required: false
-        description: |
-          "Optional postargs for `tox -e func -- <postargs>`, e.g. '--series jammy'"
+        description: "List of series used with `tox -e func -- --series <series>`"
         type: string
-        default: ""
+        default: "['jammy']"
       # actions-operator
       provider:
         required: false
@@ -40,9 +39,12 @@ jobs:
     name: Functional tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        series: ${{ fromJson(inputs.series) }}
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -54,6 +56,6 @@ jobs:
       - name: Install snapcraft
         if: ${{ inputs.snapcraft }}
         run: sudo snap install snapcraft --classic
-      - name: Run tests with additional pos arguments `${{ inputs.posargs }}`
+      - name: Run tests for `${{ matrix.series }}` series
         working-directory: ${{ inputs.working-directory }}
-        run: tox -e func -- ${{ inputs.posargs }}
+        run: tox -e func -- -sv --series ${{ matrix.series }}
