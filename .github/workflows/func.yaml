@@ -61,6 +61,6 @@ jobs:
       - name: Install snapcraft
         if: ${{ inputs.snap }}
         run: sudo snap install snapcraft --classic
-      - name: Run tests with additional pos arguments ${{ inputs.posargs }}
+      - name: Run tests with additional pos arguments `${{ inputs.posargs }}`
         working-directory: ${{ inputs.working-directory }}
         run: tox -e func -- ${{ inputs.posargs }}
