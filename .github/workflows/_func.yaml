@@ -34,11 +34,6 @@ on:
         required: false
         type: string
         default: "lxd"
-    secrets:
-      CREDENTIALS_YAML:
-        required: false
-      CLOUDS_YAML:
-        required: false
 
 jobs:
   snap-func:
@@ -56,8 +51,6 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           provider: ${{ inputs.provider }}
-          credentials-yaml: ${{ secrets.CREDENTIALS_YAML }}
-          clouds-yaml: ${{ secrets.CLOUDS_YAML }}
       - name: Install snapcraft
         if: ${{ inputs.snap }}
         run: sudo snap install snapcraft --classic
