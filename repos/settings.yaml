@@ -1,7 +1,7 @@
 shared-config: &shared-config
   branch-protection:
     dismiss-stale-reviews: false
-    required-review-count: 1
+    required-review-count: 2
   protect-default-branch: true
   features:
     issues: true
@@ -11,7 +11,7 @@ shared-config: &shared-config
   allow:
     squash-merge: false
     merge-commit: true
-    rebase-merge: false
+    rebase-merge: true
   delete-branch-on-merge: true
   labels:
     "good first issue":
