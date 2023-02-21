@@ -1,0 +1,59 @@
+name: Functional tests
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        description: "Python version"
+        type: string
+        default: "3.10"
+      tox-version:
+        required: false
+        description: "Tox version, which should be used, e.g. `<4`"
+        type: string
+        default: ""
+      working-directory:
+        required: false
+        description: "To change working directory"
+        type: string
+        default: "."
+      snap:
+        required: false
+        description: "Flag if snap is tested."
+        type: boolean
+        default: false
+      posargs:
+        required: false
+        description: |
+          "Optional postargs for `tox -e func -- <postargs>`, e.g. '--series jammy'"
+        type: string
+        default: ""
+      # actions-operator
+      provider:
+        required: false
+        type: string
+        default: "lxd"
+
+jobs:
+  snap-func:
+    name: Functional tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          provider: ${{ inputs.provider }}
+      - name: Install snapcraft
+        if: ${{ inputs.snap }}
+        run: sudo snap install snapcraft --classic
+      - name: Run tests with additional pos arguments `${{ inputs.posargs }}`
+        working-directory: ${{ inputs.working-directory }}
+        run: tox -e func -- ${{ inputs.posargs }}

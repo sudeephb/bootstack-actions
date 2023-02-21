@@ -1,4 +1,4 @@
-name: Tests for lint-unit workflow
+name: Test for func workflow
 
 
 on:
@@ -10,17 +10,19 @@ on:
 
 jobs:
   charm-lint-unit:
-    uses: ./.github/workflows/_lint-unit.yaml
+    uses: ./.github/workflows/_func.yaml
     secrets: inherit
     with:
       python-version: "3.10"
       tox-version: "<4"
       working-directory: ./tests/test_charm_repo
+      posargs: --series jammy
 
   snap-lint-unit:
-    uses: ./.github/workflows/_lint-unit.yaml
+    uses: ./.github/workflows/_func.yaml
     secrets: inherit
     with:
       python-version: "3.10"
       tox-version: "<4"
       working-directory: ./tests/test_snap_repo
+      snap: true
