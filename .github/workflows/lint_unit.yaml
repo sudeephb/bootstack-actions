@@ -1,0 +1,53 @@
+name: Lint checkers and Unit tests
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        description: "Python version"
+        type: string
+        default: "3.10"
+      tox-version:
+        required: false
+        description: "Tox version, which should be used, e.g. `<4`"
+        type: string
+        default: ""
+      working-directory:
+        required: false
+        description: "To change working directory"
+        type: string
+        default: "."
+        
+jobs:
+  lint-unit:
+    name: Lint checkers and Unit tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install "tox${{ inputs.tox-version }}"
+    - name: Run lint checkers
+      working-directory: ${{ inputs.working-directory }}
+      run: tox -e lint
+    - name: Run unit tests
+      working-directory: ${{ inputs.working-directory }}
+      run: tox -e unit
+    - name: Save PR number to file
+      run: echo ${{ github.event.number }} > PR_NUMBER.txt
+    - name: Archive PR number
+      uses: actions/upload-artifact@v3
+      with:
+        name: PR_NUMBER
+        path: PR_NUMBER.txt
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: ${{ inputs.working-directory }}/report/coverage.xml

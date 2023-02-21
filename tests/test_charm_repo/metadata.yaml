@@ -1,0 +1,4 @@
+name: test
+
+display-name: Charm test for BootStack actions
+summary: This is charm for test purposes.
