@@ -10,7 +10,7 @@ on:
 
 jobs:
   charm-lint-unit:
-    uses: ./.github/workflows/func.yaml
+    uses: ./.github/workflows/_func.yaml
     secrets: inherit
     with:
       python-version: "3.10"
@@ -19,7 +19,7 @@ jobs:
       posargs: --series jammy
 
   snap-lint-unit:
-    uses: ./.github/workflows/func.yaml
+    uses: ./.github/workflows/_func.yaml
     secrets: inherit
     with:
       python-version: "3.10"
