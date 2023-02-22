@@ -18,7 +18,7 @@ on:
         description: "To change working directory"
         type: string
         default: "."
-      snap:
+      snapcraft:
         required: false
         description: "Flag if snap is tested."
         type: boolean
@@ -52,7 +52,7 @@ jobs:
         with:
           provider: ${{ inputs.provider }}
       - name: Install snapcraft
-        if: ${{ inputs.snap }}
+        if: ${{ inputs.snapcraft }}
         run: sudo snap install snapcraft --classic
       - name: Run tests with additional pos arguments `${{ inputs.posargs }}`
         working-directory: ${{ inputs.working-directory }}
