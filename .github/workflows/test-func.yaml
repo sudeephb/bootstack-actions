@@ -16,7 +16,9 @@ jobs:
       python-version: "3.10"
       tox-version: "<4"
       working-directory: ./tests/test_charm_repo
-      series: "['jammy']"
+      posargs: "['--series jammy']"
+      juju-env: true
+      provider: "lxd"
 
   snap-func:
     uses: ./.github/workflows/_func.yaml
