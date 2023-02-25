@@ -54,4 +54,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: coverage-report
-        path: ${{ inputs.working-directory }}/report/coverage.xml
+        path: ${{ inputs.working-directory }}/tests/unit/report/coverage.xml
