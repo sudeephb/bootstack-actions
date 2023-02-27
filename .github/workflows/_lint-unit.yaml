@@ -18,7 +18,7 @@ on:
         description: "To change working directory"
         type: string
         default: "."
-        
+
 jobs:
   lint-unit:
     name: Lint checkers and Unit tests

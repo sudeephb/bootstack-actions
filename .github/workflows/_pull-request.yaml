@@ -1,0 +1,80 @@
+name: Pull Request
+
+on:
+  workflow_call:
+    inputs:
+      python-version-unit:
+        required: true
+        description: "Python version"
+        type: string
+      python-version-func:
+        required: true
+        description: "Python version"
+        type: string
+      tox-version:
+        required: false
+        description: "Tox version, which should be used, e.g. `<4`"
+        type: string
+        default: ""
+      working-directory:
+        required: false
+        description: "To change working directory"
+        type: string
+        default: "."
+      snapcraft:
+        required: false
+        description: "Flag if snap is tested."
+        type: boolean
+        default: false
+      posargs:
+        required: false
+        description: |
+          "Optional postargs for `tox -e func -- <postargs>`, e.g. '--series jammy'"
+        type: string
+        default: "['']"  # empty string as default so func test is run at least one
+      # actions-operator
+      juju-env:
+        required: true
+        type: boolean
+      provider:
+        required: false
+        type: string
+        default: "lxd"
+
+jobs:
+  lint-unit:
+    name: Lint checkers and unit tests
+    uses: ./.github/workflows/_lint-unit.yaml
+    # Note(rgildein): Lint checkers and unit tests should be triggered on any push, any
+    # pull requested, approval pull request review was submitted or review comment with
+    # recheck
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
+      github.event.review.state == 'approved' ||
+      github.event.review.body == 'recheck'
+    secrets: inherit
+    with:
+      python-version: ${{ inputs.python-version-unit }}
+      tox-version: ${{ inputs.tox-version }}
+      working-directory: ${{ inputs.working-directory }}
+
+  func:
+    uses: ./.github/workflows/_func.yaml
+    needs: 
+    - lint-unit
+    # Note(rgildein): Functional tests should be triggered only for commits to
+    # master/main branch, if PR was approved or review comment with recheck
+    if: |
+      contains(fromJson('["main", "master"]'), github.event.ref_name) ||
+      github.event.review.state == 'approved' ||
+      github.event.review.body == 'recheck'
+    secrets: inherit
+    with:
+      python-version: ${{ inputs.python-version-func }}
+      tox-version: ${{ inputs.tox-version }}
+      working-directory: ${{ inputs.working-directory }}
+      snapcraft: ${{ inputs.snapcraft }}
+      posargs: ${{ inputs.posargs }}
+      juju-env: ${{ inputs.juju-env }}
+      provider: ${{ inputs.provider }}
