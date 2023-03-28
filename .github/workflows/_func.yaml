@@ -18,6 +18,11 @@ on:
         description: "To change working directory"
         type: string
         default: "."
+      timeout-minutes:
+        required: false
+        description: "Configurable timeout limit for functional test job"
+        type: number
+        default: 60
       snapcraft:
         required: false
         description: "Flag if snap is tested."
@@ -49,7 +54,7 @@ jobs:
   func:
     name: Functional tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     strategy:
       fail-fast: true
       matrix:
