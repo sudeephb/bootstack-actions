@@ -28,6 +28,11 @@ on:
         description: "Flag if snap is tested."
         type: boolean
         default: false
+      timeout-minutes:
+        required: false
+        description: "Configurable timeout limit for functional test job"
+        type: number
+        default: 60
       commands:
         required: false
         description: |
@@ -83,6 +88,7 @@ jobs:
       python-version: ${{ inputs.python-version-func }}
       tox-version: ${{ inputs.tox-version }}
       working-directory: ${{ inputs.working-directory }}
+      timeout-minutes: ${{ inputs.timeout-minutes }}
       snapcraft: ${{ inputs.snapcraft }}
       commands: ${{ inputs.commands }}
       provider: ${{ inputs.provider }}
