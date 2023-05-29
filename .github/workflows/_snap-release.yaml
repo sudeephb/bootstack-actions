@@ -1,0 +1,34 @@
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: |
+          A comma-separated list of channels, to which the snap should be released, in
+          string format. By default, the snap will be released to the "latest/edge" channel.
+          Examples:
+          - "latest/edge"
+          - "latest/edge,latest/candidate,2.9/edge"
+        required: false
+        type: string
+        default: latest/edge
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish Snap
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: snap-artifact
+      - id: get-snap-name
+        run: echo "SNAP_FILE=$(ls *.snap)" >> $GITHUB_OUTPUT
+      - name: Release snap to the specified channel
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.get-snap-name.outputs.SNAP_FILE }}
+          release: ${{ inputs.channel }}

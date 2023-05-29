@@ -1,8 +1,16 @@
-name: Pull Request
-
 on:
   workflow_call:
     inputs:
+      channel:
+        description: |
+          A comma-separated list of channels, to which the snap should be released, in
+          string format. By default, the snap will be released to the "latest/edge" channel.
+          Examples:
+          - "latest/edge"
+          - "latest/edge,latest/candidate,2.9/edge"
+        required: false
+        type: string
+        default: latest/edge
       python-version-unit:
         required: true
         description: "Python version"
@@ -30,12 +38,7 @@ on:
         description: |
           Flag if snap is tested. If set to true, snapcraft will be installed.
         type: boolean
-        default: false
-      timeout-minutes:
-        required: false
-        description: "Configurable timeout limit for functional test job"
-        type: number
-        default: 60
+        default: true
       commands:
         required: true
         description: |
@@ -48,6 +51,11 @@ on:
              'FUNC_ARGS="--series focal" make functional']"
           - "['tox -e func -- -sv --series jammy', 'tox -e func -- -sv --series focal']"
         type: string
+      timeout-minutes:
+        required: false
+        description: "Configurable timeout limit for functional tests job"
+        type: number
+        default: 60
       # actions-operator
       provider:
         required: false
@@ -60,7 +68,6 @@ on:
 
 jobs:
   lint-unit:
-    name: Lint checkers and unit tests
     uses: ./.github/workflows/_lint-unit.yaml
     secrets: inherit
     with:
@@ -70,8 +77,7 @@ jobs:
 
   func:
     uses: ./.github/workflows/_func.yaml
-    needs: 
-    - lint-unit
+    needs: lint-unit
     secrets: inherit
     with:
       python-version: ${{ inputs.python-version-func }}
@@ -82,3 +88,15 @@ jobs:
       commands: ${{ inputs.commands }}
       provider: ${{ inputs.provider }}
       nested-containers: ${{ inputs.nested-containers }}
+
+  build:
+    uses: ./.github/workflows/_snap-build.yaml
+    needs: func
+    secrets: inherit
+  
+  release-snap:
+    uses: ./.github/workflows/_snap-release.yaml
+    needs: build
+    secrets: inherit
+    with:
+      channel: ${{ inputs.channel }}
