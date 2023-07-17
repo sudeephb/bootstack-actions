@@ -52,6 +52,10 @@ on:
         required: false
         type: boolean
         default: false
+      juju-channel:
+        required: false
+        type: string
+        default: "2.9/stable"
 
 jobs:
   func:
@@ -78,6 +82,7 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           provider: ${{ inputs.provider }}
+          juju-channel: ${{ inputs.juju-channel }}
       - name: Remove tox install by actions-operator
         run: sudo apt remove tox -y
       - name: Install snapcraft

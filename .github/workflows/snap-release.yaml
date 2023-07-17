@@ -88,6 +88,7 @@ jobs:
       commands: ${{ inputs.commands }}
       provider: ${{ inputs.provider }}
       nested-containers: ${{ inputs.nested-containers }}
+      juju-channel: ${{ inputs.juju-channel }}
 
   build:
     uses: ./.github/workflows/_snap-build.yaml
