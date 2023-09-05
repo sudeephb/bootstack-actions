@@ -44,15 +44,7 @@ on:
         default: "."
       commands:
         required: true
-        description: |
-          Command to run functional test in strategies. It accepts a stringified list
-          of commands, which allows you to run multiple tests with different parameters.
-          This is a required input field.
-          Examples:
-          - "['make functional']"
-          - "['FUNC_ARGS="--series jammy" make functional',
-             'FUNC_ARGS="--series focal" make functional']"
-          - "['tox -e func -- -sv --series jammy', 'tox -e func -- -sv --series focal']"
+        description: "Command to run functional test with"
         type: string
       juju-channel:
         required: false

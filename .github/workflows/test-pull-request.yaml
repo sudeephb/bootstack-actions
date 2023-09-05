@@ -14,13 +14,21 @@ jobs:
   charm-pr:
     uses: ./.github/workflows/pull-request.yaml
     secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - commands: "FUNC_ARGS=\"--series jammy\" make functional"
+            juju-channel: "2.9/stable"
+          - commands: "FUNC_ARGS=\"--series jammy\" make functional31"
+            juju-channel: "3.1/stable"
     with:
       python-version-unit: "['3.10']"
       python-version-func: "3.10"
       tox-version: "<4"
       working-directory: ./tests/test_charm_repo
-      commands: "['FUNC_ARGS=\"--series jammy\" make functional']"
-      juju-channel: "2.9/stable"
+      commands: ${{ matrix.commands }}
+      juju-channel: ${{ matrix.juju-channel }}
 
   snap-pr:
     uses: ./.github/workflows/pull-request.yaml
@@ -31,4 +39,4 @@ jobs:
       tox-version: "<4"
       working-directory: ./tests/test_snap_repo
       snapcraft: true
-      commands: "['make functional']"
+      commands: "make functional"
