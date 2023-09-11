@@ -1,20 +1,20 @@
-name: Lint checkers and Unit tests
+name: Lint Checkers and Unit Tests
 
 on:
   workflow_call:
     inputs:
       python-version:
-        required: true
+        required: false
         description: "Python version"
         type: string
-        default: "['3.10']"
+        default: "3.10"
       tox-version:
         required: false
         description: |
-          Tox version, which should be used, e.g. `<4`. If not specified, the
-          latest version of tox will be installed.
+          Tox version, which should be used. The latest
+          3.x version will be used by default.
         type: string
-        default: ""
+        default: "<4"
       working-directory:
         required: false
         description: "To change working directory"
@@ -25,18 +25,14 @@ jobs:
   lint-unit:
     name: Lint checkers and Unit tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ${{ fromJson(inputs.python-version) }}
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ inputs.python-version }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

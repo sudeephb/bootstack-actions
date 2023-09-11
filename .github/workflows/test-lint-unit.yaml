@@ -2,24 +2,28 @@ name: Tests for lint-unit workflow
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [v2]
   pull_request:
     types: [ opened, synchronize, reopened ]
-    branches: [ master, main ]
+    branches: [v2]
 
 jobs:
   charm-lint-unit:
-    uses: ./.github/workflows/_lint-unit.yaml
+    uses: ./.github/workflows/lint-unit.yaml
     secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.10']
     with:
-      python-version: "['3.8','3.10']"
-      tox-version: "<4"
       working-directory: ./tests/test_charm_repo
 
   snap-lint-unit:
-    uses: ./.github/workflows/_lint-unit.yaml
+    uses: ./.github/workflows/lint-unit.yaml
     secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.10']
     with:
-      python-version: "['3.8','3.10']"
-      tox-version: "<4"
       working-directory: ./tests/test_snap_repo

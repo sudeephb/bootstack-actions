@@ -2,38 +2,31 @@ name: Test for func workflow
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [v2]
   pull_request:
     types: [ opened, synchronize, reopened ]
-    branches: [ master, main ]
+    branches: [v2]
 
 jobs:
   charm-func:
-    uses: ./.github/workflows/_func.yaml
+    uses: ./.github/workflows/func.yaml
     secrets: inherit
     strategy:
       fail-fast: false
       matrix:
         include:
-          - commands: "make functional"
+          - command: "make functional"
             juju-channel: "2.9/stable"
-          - commands: "make functional31"
+          - command: "make functional31"
             juju-channel: "3.1/stable"
     with:
-      python-version: "3.10"
-      tox-version: "<4"
-      working-directory: ./tests/test_charm_repo
-      commands: ${{ matrix.commands }}
-      timeout-minutes: 120
-      provider: "lxd"
       nested-containers: true
-      juju-channel: ${{ matrix.juju-channel }}
+      timeout-minutes: 120
+      working-directory: ./tests/test_charm_repo
 
   snap-func:
-    uses: ./.github/workflows/_func.yaml
+    uses: ./.github/workflows/func.yaml
     secrets: inherit
     with:
-      python-version: "3.10"
-      tox-version: "<4"
-      working-directory: ./tests/test_snap_repo
       snapcraft: true
+      working-directory: ./tests/test_snap_repo

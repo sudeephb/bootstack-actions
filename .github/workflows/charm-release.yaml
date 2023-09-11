@@ -4,8 +4,10 @@ on:
   workflow_call:
     inputs:
       artifact:
-        description: "Name of artifact to download before building. Must contain the file artifact.tar.gz."
-        default: ''
+        description: |
+          Name of artifact to download before building. This artifact can be used to
+          store resources or any other files needed for testing. The file needs to be
+          packed as tar.gz file.
         required: false
         type: string
       channel:
@@ -17,83 +19,35 @@ on:
       upload-image:
         description: |
           Set to true if you want to update the OCI image
-        default: false
-        required: false
-        type: boolean
-      python-version-unit:
-        required: true
-        description: "Python version"
-        type: string
-        default: "['3.8', '3.10']"
-      python-version-func:
-        required: true
-        description: "Python version"
-        type: string
-        default: "3.10"
-      tox-version:
-        required: false
-        description: |
-          Tox version, which should be used, e.g. `<4`. If not specified, the
-          latest version of tox will be installed.
-        type: string
-        default: ""
-      working-directory:
-        required: false
-        description: "To change working directory"
-        type: string
-        default: "."
-      commands:
-        required: true
-        description: "Command to run functional test with"
-        type: string
-      juju-channel:
-        required: false
-        type: string
-        default: "2.9/stable"
-      # actions-operator
-      provider:
-        required: false
-        type: string
-        default: "lxd"
-      nested-containers:
         required: false
         type: boolean
         default: false
-
-concurrency:
-  group: release
-  cancel-in-progress: true
+    secrets:
+      CHARMHUB_TOKEN:
+        required: true
 
 jobs:
-  lint-unit:
-    name: Lint checkers and unit tests
-    uses: ./.github/workflows/_lint-unit.yaml
-    secrets: inherit
-    with:
-      python-version: ${{ inputs.python-version-unit }}
-      tox-version: ${{ inputs.tox-version }}
-      working-directory: ${{ inputs.working-directory }}
-
-  func:
-    uses: ./.github/workflows/_func.yaml
-    needs:
-    - lint-unit
-    secrets: inherit
-    with:
-      python-version: ${{ inputs.python-version-func }}
-      tox-version: ${{ inputs.tox-version }}
-      working-directory: ${{ inputs.working-directory }}
-      commands: ${{ inputs.commands }}
-      provider: ${{ inputs.provider }}
-      nested-containers: ${{ inputs.nested-containers }}
-      juju-channel: ${{ inputs.juju-channel }}
-
-  release-charm:
-    needs:
-      - func
-    uses: ./.github/workflows/_charm-release.yaml
-    secrets: inherit
-    with:
-      artifact: "${{ inputs.artifact }}"
-      channel: "${{ inputs.channel }}"
-      upload-image: "${{ inputs.upload-image }}"
+  release-to-charmhub:
+    name: Release to CharmHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Download Artifact
+        if: ${{ inputs.artifact != '' }}
+        id: download_artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ inputs.artifact }}"
+      - name: Unpack Artifact
+        if: ${{ inputs.artifact != '' }}
+        run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
+      - name: Upload charm to CharmHub
+        uses: canonical/charming-actions/upload-charm@2.1.1
+        with:
+          credentials: "${{ secrets.CHARMHUB_TOKEN }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          channel: "${{ inputs.channel }}"
+          upload-image: "${{ inputs.upload-image }}"

@@ -11,89 +11,40 @@ on:
         required: false
         type: string
         default: latest/edge
-      python-version-unit:
-        required: true
-        description: "Python version"
-        type: string
-        default: "['3.8', '3.10']"
-      python-version-func:
-        required: true
-        description: "Python version"
-        type: string
-        default: "3.10"
-      tox-version:
-        required: false
-        description: |
-          Tox version, which should be used, e.g. `<4`. If not specified, the
-          latest version of tox will be installed.
-        type: string
-        default: ""
-      working-directory:
-        required: false
-        description: "To change working directory"
-        type: string
-        default: "."
-      snapcraft:
-        required: false
-        description: |
-          Flag if snap is tested. If set to true, snapcraft will be installed.
-        type: boolean
-        default: true
-      commands:
-        required: true
-        description: "Command to run functional tests with"
-        type: string
-      timeout-minutes:
-        required: false
-        description: "Configurable timeout limit for functional tests job"
-        type: number
-        default: 60
-      juju-channel:
-        required: false
-        type: string
-        default: "2.9/stable"
-      # actions-operator
-      provider:
-        required: false
-        type: string
-        default: "lxd"
-      nested-containers:
-        required: false
-        type: boolean
-        default: false
 
 jobs:
-  lint-unit:
-    uses: ./.github/workflows/_lint-unit.yaml
-    secrets: inherit
-    with:
-      python-version: ${{ inputs.python-version-unit }}
-      tox-version: ${{ inputs.tox-version }}
-      working-directory: ${{ inputs.working-directory }}
-
-  func:
-    uses: ./.github/workflows/_func.yaml
-    needs: lint-unit
-    secrets: inherit
-    with:
-      python-version: ${{ inputs.python-version-func }}
-      tox-version: ${{ inputs.tox-version }}
-      working-directory: ${{ inputs.working-directory }}
-      timeout-minutes: ${{ inputs.timeout-minutes }}
-      snapcraft: ${{ inputs.snapcraft }}
-      commands: ${{ inputs.commands }}
-      provider: ${{ inputs.provider }}
-      nested-containers: ${{ inputs.nested-containers }}
-      juju-channel: ${{ inputs.juju-channel }}
-
   build:
-    uses: ./.github/workflows/_snap-build.yaml
-    needs: func
-    secrets: inherit
-  
-  release-snap:
-    uses: ./.github/workflows/_snap-release.yaml
+    name: Build Snap
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch all history for proper versioning
+      - uses: snapcore/action-build@v1
+        id: build
+      - name: Upload locally built Snap artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: snap-artifact
+          path: ${{ steps.build.outputs.snap }}
+
+  publish:
+    name: Publish Snap
     needs: build
-    secrets: inherit
-    with:
-      channel: ${{ inputs.channel }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: snap-artifact
+      - id: get-snap-name
+        run: echo "SNAP_FILE=$(ls *.snap)" >> $GITHUB_OUTPUT
+      - name: Release snap to the specified channel
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.get-snap-name.outputs.SNAP_FILE }}
+          release: ${{ inputs.channel }}

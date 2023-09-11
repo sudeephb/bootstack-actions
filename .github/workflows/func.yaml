@@ -1,20 +1,20 @@
-name: Functional tests
+name: Functional Tests
 
 on:
   workflow_call:
     inputs:
       python-version:
-        required: true
+        required: false
         description: "Python version"
         type: string
         default: "3.10"
       tox-version:
         required: false
         description: |
-          Tox version, which should be used, e.g. `<4`. If not specified, the
-          latest version of tox will be installed.
+          Tox version, which should be used. The latest
+          3.x version will be used by default.
         type: string
-        default: ""
+        default: "<4"
       working-directory:
         required: false
         description: "To change working directory"
@@ -31,7 +31,7 @@ on:
           Flag if snap is tested. If set to true, snapcraft will be installed.
         type: boolean
         default: false
-      commands:
+      command:
         required: false
         description: "Command to run functional tests with"
         type: string
@@ -88,6 +88,6 @@ jobs:
           lxc profile set --project nested-lxd default security.privileged=true
           # set default project to be nested-lxd project
           juju model-default project=nested-lxd
-      - name: Run tests with `${{ inputs.commands }}`
+      - name: Run tests with `${{ inputs.command }}`
         working-directory: ${{ inputs.working-directory }}
-        run: ${{ inputs.commands }}
+        run: ${{ inputs.command }}
