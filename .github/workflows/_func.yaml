@@ -99,6 +99,10 @@ jobs:
           lxc profile set --project nested-lxd default security.privileged=true
           # set default project to be nested-lxd project
           juju model-default project=nested-lxd
+      - name: Show juju information
+        run: |
+          juju version
+          juju controllers | grep Version -A 1 | awk '{print $9}'
       - name: Run tests with `${{ matrix.command }}`
         working-directory: ${{ inputs.working-directory }}
         run: ${{ matrix.command }}
