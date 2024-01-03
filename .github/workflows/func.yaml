@@ -86,6 +86,11 @@ on:
       juju-accounts-yaml:
         required: false
         description: "A base64 encoded accounts.yaml file to use"
+      openstack-auth-env:
+        required: false
+        description: |
+          A base64 encoded openstack authentication env file.
+
 
 jobs:
   func:
@@ -136,8 +141,8 @@ jobs:
         run: |
           sudo apt update -yqq
           sudo apt remove -qy lxd
-          if [[ $(cat /etc/os-release | grep VERSION_CODENAME) == *"focal"* ]]; then \
-            suod apt remove -qy lxd-client
+          if [[ $(cat /etc/os-release | grep VERSION_CODENAME) == *"focal"* ]]; then
+            sudo apt remove -qy lxd-client
           fi
           sudo snap install lxd --channel ${{ inputs.lxd-channel }}
           sudo lxd waitready
@@ -145,10 +150,27 @@ jobs:
           sudo chmod a+wr /var/snap/lxd/common/lxd/unix.socket
           lxc network set lxdbr0 ipv6.address none
           sudo usermod -a -G lxd $USER
-          if [[ $(cat /etc/os-release | grep VERSION_CODENAME) == *"jammy"* ]]; then \
+          if [[ $(cat /etc/os-release | grep VERSION_CODENAME) == *"jammy"* ]]; then
             sudo iptables -F FORWARD
             sudo iptables -P FORWARD ACCEPT
           fi
+      - name: external controller openstack environment
+        if: ${{ inputs.external-controller }}
+        run: |
+           # Workaround because github workflow doesn't allow to use secrets key
+           # word in an if conditional expression.
+           if [ "${{ secrets.openstack-auth-env }}" != '' ]; then
+             # Add mask to secret
+             # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-masking-a-generated-output-within-a-single-job
+             echo ${{ secrets.openstack-auth-env }} \
+                | base64 -d \
+                | grep -E 'OS_AUTH_URL|OS_USERNAME|OS_PASSWORD|OS_PROJECT_NAME|OS_PROJECT_ID' \
+                | awk -F'=' '{print $2}' \
+                | xargs -I {} echo "::add-mask::{}"
+             echo ${{ secrets.openstack-auth-env }} | base64 -d >> "$GITHUB_ENV"
+           else
+             echo "Skip because missing openstack-auth-env secrets"
+           fi
       - name: external controller required package
         if: ${{ inputs.external-controller }}
         run: |
