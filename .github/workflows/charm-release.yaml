@@ -45,7 +45,7 @@ jobs:
         if: ${{ inputs.artifact != '' }}
         run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
       - name: Upload charm to CharmHub
-        uses: canonical/charming-actions/upload-charm@2.1.1
+        uses: sudeephb/charming-actions/upload-charm@multiple-builds
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
