@@ -27,6 +27,14 @@ on:
         type: string
         default: "['ubuntu-latest']"
         description: "JSON format list of labels for runs-on"
+      destructive-mode:
+        required: false
+        type: boolean
+        default: true
+        description: |
+          Can be used to turn off destructive mode while building.
+          This is useful when building on other architectures/bases than the one
+          of the runner.
     secrets:
       CHARMHUB_TOKEN:
         required: true
@@ -50,9 +58,10 @@ jobs:
         if: ${{ inputs.artifact != '' }}
         run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
       - name: Upload charm to CharmHub
-        uses: canonical/charming-actions/upload-charm@2.1.1
+        uses: canonical/charming-actions/upload-charm@2.4.0
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           channel: "${{ inputs.channel }}"
           upload-image: "${{ inputs.upload-image }}"
+          destructive-mode: "${{ inputs.destructive-mode }}"
