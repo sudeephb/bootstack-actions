@@ -57,6 +57,8 @@ jobs:
       - name: Unpack Artifact
         if: ${{ inputs.artifact != '' }}
         run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
+      - name: Initialize lxd
+        run: sudo lxd init --auto
       - name: Upload charm to CharmHub
         uses: canonical/charming-actions/upload-charm@2.4.0
         with:
