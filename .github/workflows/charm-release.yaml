@@ -58,7 +58,7 @@ jobs:
         if: ${{ inputs.artifact != '' }}
         run: sudo apt-get update && sudo apt-get install tar && tar xf artifact.tar.gz
       - name: Initialize lxd  # This should dropped once it's implemented on charming-actions itself.
-        if: ${{ inputs.destructive-mode == 'false' }}
+        if: ${{ inputs.destructive-mode == false }}
         run: |
           sudo lxd init --auto
           # The following is needed to fix network error when creating new base instance on lxd
