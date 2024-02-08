@@ -70,9 +70,7 @@ jobs:
             sudo iptables -P FORWARD ACCEPT
           fi
       - name: Upload charm to CharmHub
-        # Using the version of charming-actions that supports release of multiple builds at once.
-        # The commit hash should be replaced by release version after the next release of charming-actions.
-        uses: canonical/charming-actions/upload-charm@0953ad46cdd8363b3c9c923793c467c5d948ce7f
+        uses: canonical/charming-actions/upload-charm@2.5.0-rc
         with:
           credentials: "${{ secrets.CHARMHUB_TOKEN }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
